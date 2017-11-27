@@ -43,23 +43,23 @@ class value(object):
 GUI_REFRESH = 0.01
 async def run_tk(root, controller, interval=GUI_REFRESH):   
     try:
-        while True:
-            # update gui
-            newTime = time.time()                                               
+        startTime = time.time()
+        count = 1000
+        while count > 0:
+            # update gui            
             root.update()      
-            newTime = time.time() - newTime
-            print("guiUpdate:" + str(newTime))        
-             
-            # update logic if required.
-            logicTimer = time.time()
-            controller.update()
-            logicTimer = time.time() - logicTimer
-            print ("logicUpdate:" + str(logicTimer))
-            await asyncio.sleep(interval)
-
+ 
+            # update logic if required.            
+            controller.update()            
+            
+            #await asyncio.sleep(interval)
+            count -= 1
     except tk.TclError as e:
         if "application has been destroyed" not in e.args[0]:
-            raise        
+            raise     
+    endTime = time.time()
+    print ("TotalTime:" + str(endTime - startTime))
+    print ("time/frame" + str((endTime - startTime)/1000))
             
 FONT = ("Consolas", 16)
 
@@ -68,7 +68,8 @@ if __name__ == '__main__':
     stringVars = []
     canvas = tk.Canvas(root, width=1000, height = 800, background='black')
     rowSize = 30
-    data = [[value()]*rowSize for row in range(600//rowSize)]   
+    total = 600
+    data = [[value() for i in range(rowSize)] for j in range(total//rowSize)]   
     fullCanvas = fullCanvas(canvas,data)        
     stringVars.append(fullCanvas)
     canvas.pack()
