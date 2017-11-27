@@ -15,6 +15,7 @@ class controller(object):
                 row.values[i].value += int(random.random() * 5)
                 row.values[i].value %= 100
             row.render()
+        #self.canvas.update_idletasks()
         
 
 class rowCanvas(object):
@@ -39,24 +40,23 @@ class value(object):
 GUI_REFRESH = 0.01
 async def run_tk(root, controller, interval=GUI_REFRESH):   
     try:
-        timer = time.time()
         while True:
             # update gui
-            newTime = time.time()
-            delta = newTime - timer            
-                                    
+            newTime = time.time()                                               
             root.update()      
+            newTime = time.time() - newTime
+            print("guiUpdate:" + str(newTime))        
              
             # update logic if required.
+            logicTimer = time.time()
             controller.update()
-            
+            logicTimer = time.time() - logicTimer
+            print ("logicUpdate:" + str(logicTimer))
             await asyncio.sleep(interval)
-            print (delta)
-            timer = newTime
-            
+
     except tk.TclError as e:
         if "application has been destroyed" not in e.args[0]:
-            raise     
+            raise      
             
 FONT = ("Consolas", 16)
 
@@ -74,4 +74,4 @@ if __name__ == '__main__':
     controller = controller(canvas,stringVars)
         # Start running the tkinter update() through an asyncio coroutine
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run_tk(root, controller, 0.001))
+    loop.run_until_complete(run_tk(root, controller, 0.000))
