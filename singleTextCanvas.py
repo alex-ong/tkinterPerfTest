@@ -3,31 +3,43 @@ import asyncio
 import time
 import threading
 import random
-
 class controller(object):
     def __init__(self, canvas, items):
         self.canvas = canvas
         self.items = items
         
     
-    def update(self):
-        #noncached upate
-        '''
-        for item in self.items:                 
-            number = int(canvas.itemcget(item[0],'text'))
-            number += 1
-            number %= 100
-            canvas.itemconfigure(item[0],text=(str(number)))            
-        '''
-        #cached update
-        
-        for item in self.items:                 
-            item[1] += int(random.random() * 5)
-            item[1] %= 100
-            canvas.itemconfigure(item[0],text=(str(item[1])))            
+    def update(self):                       
+        for row in self.items:                 
+            for i in range (len(row.values)):
+                for j in range(len(row.values[i])):
+                    row.values[i][j].value += int(random.random() * 5)
+                    row.values[i][j].value %= 100
+        row.render()
         
 
+class fullCanvas(object):
+    def __init__(self, canvas, values):
+        self.canvas = canvas
+        self.values = values
+        
+        self.text_id = canvas.create_text(0,0,anchor="nw",text=self.getTextString(), font=FONT, fill='yellow')
+            
+    def getTextString(self):        
+        rows = []
+        for row in self.values:
+            rows.append(" ".join([str(x) for x in row]))
+        return '\n'.join(rows)        
     
+    def render(self):
+        self.canvas.itemconfigure(self.text_id,text=self.getTextString())
+        
+class value(object):
+    def __init__(self):
+        self.value = 0
+    def __str__(self):
+        return "%02d" % (self.value)
+        
 GUI_REFRESH = 0.01
 async def run_tk(root, controller, interval=GUI_REFRESH):   
     try:
@@ -56,11 +68,10 @@ if __name__ == '__main__':
     root = tk.Tk()
     stringVars = []
     canvas = tk.Canvas(root, width=1000, height = 800, background='black')
-    for i in range(600):
-        row = i // 30
-        column = i % 30
-        text_id = canvas.create_text(column*30,row*30,anchor="nw",text="00", font=FONT, fill='yellow')
-        stringVars.append([text_id, 0])
+    rowSize = 30
+    data = [[value()]*rowSize for row in range(600//rowSize)]   
+    fullCanvas = fullCanvas(canvas,data)        
+    stringVars.append(fullCanvas)
     canvas.pack()
         
     controller = controller(canvas,stringVars)

@@ -39,7 +39,7 @@ async def run_tk(root, controller, interval=GUI_REFRESH):
         if "application has been destroyed" not in e.args[0]:
             raise     
             
-FONT = ("Helvetica", 16)
+FONT = ("Consolas", 16)
 
 if __name__ == '__main__':    
     root = tk.Tk()
